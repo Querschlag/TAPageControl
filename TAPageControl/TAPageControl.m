@@ -65,7 +65,7 @@ static CGSize const kDefaultDotSize = {8, 8};
     if (self) {
         [self initialization];
     }
-    
+
     return self;
 }
 
@@ -86,7 +86,7 @@ static CGSize const kDefaultDotSize = {8, 8};
     if (self) {
         [self initialization];
     }
-    
+
     return self;
 }
 
@@ -144,21 +144,25 @@ static CGSize const kDefaultDotSize = {8, 8};
     if (self.numberOfPages == 0) {
         return;
     }
-    
+
     for (NSInteger i = 0; i < self.numberOfPages; i++) {
-        
+
         UIView *dot;
         if (i < self.dots.count) {
             dot = [self.dots objectAtIndex:i];
         } else {
             dot = [self generateDotView];
         }
-        
+
+        if ([dot isKindOfClass:[UIImageView class]]) {
+            double index = (double)(i+1)/(double)self.numberOfPages;
+            ((UIImageView *)dot).image = (index < self.progress) ? self.progressDotImage : self.dotImage;
+        }
         [self updateDotFrame:dot atIndex:i];
     }
-    
+
     [self changeActivity:YES atIndex:self.currentPage];
-    
+
     [self hideForSinglePage];
 }
 
@@ -172,7 +176,7 @@ static CGSize const kDefaultDotSize = {8, 8};
 {
     CGPoint center = self.center;
     CGSize requiredSize = [self sizeForNumberOfPages:self.numberOfPages];
-    
+
     // We apply requiredSize only if authorize to and necessary
     if (overrideExistingFrame || ((CGRectGetWidth(self.frame) < requiredSize.width || CGRectGetHeight(self.frame) < requiredSize.height) && !overrideExistingFrame)) {
         self.frame = CGRectMake(CGRectGetMinX(self.frame), CGRectGetMinY(self.frame), requiredSize.width, requiredSize.height);
@@ -180,7 +184,7 @@ static CGSize const kDefaultDotSize = {8, 8};
             self.center = center;
         }
     }
-    
+
     [self resetDotViews];
 }
 
@@ -196,7 +200,7 @@ static CGSize const kDefaultDotSize = {8, 8};
     // Dots are always centered within view
     CGFloat x = (self.dotSize.width + self.spacingBetweenDots) * index + ( (CGRectGetWidth(self.frame) - [self sizeForNumberOfPages:self.numberOfPages].width) / 2);
     CGFloat y = (CGRectGetHeight(self.frame) - self.dotSize.height) / 2;
-    
+
     dot.frame = CGRectMake(x, y, self.dotSize.width, self.dotSize.height);
 }
 
@@ -212,21 +216,21 @@ static CGSize const kDefaultDotSize = {8, 8};
 - (UIView *)generateDotView
 {
     UIView *dotView;
-    
+
     if (self.dotViewClass) {
         dotView = [[self.dotViewClass alloc] initWithFrame:CGRectMake(0, 0, self.dotSize.width, self.dotSize.height)];
     } else {
         dotView = [[UIImageView alloc] initWithImage:self.dotImage];
         dotView.frame = CGRectMake(0, 0, self.dotSize.width, self.dotSize.height);
     }
-    
+
     if (dotView) {
         [self addSubview:dotView];
         [self.dots addObject:dotView];
     }
-    
+
     dotView.userInteractionEnabled = YES;
-    
+
     return dotView;
 }
 
@@ -248,7 +252,16 @@ static CGSize const kDefaultDotSize = {8, 8};
         }
     } else if (self.dotImage && self.currentDotImage) {
         UIImageView *dotView = (UIImageView *)[self.dots objectAtIndex:index];
-        dotView.image = (active) ? self.currentDotImage : self.dotImage;
+        if (!active) {
+            if (self.progressDotImage) {
+                double indexProgress = (double)index/(double)self.numberOfPages;
+                dotView.image = (indexProgress < self.progress) ? self.progressDotImage : self.dotImage;
+            } else {
+                dotView.image = self.dotImage;
+            }
+        } else {
+            dotView.image = (active) ? self.currentDotImage : self.dotImage;
+        }
     }
 }
 
@@ -258,7 +271,7 @@ static CGSize const kDefaultDotSize = {8, 8};
     for (UIView *dotView in self.dots) {
         [dotView removeFromSuperview];
     }
-    
+
     [self.dots removeAllObjects];
     [self updateDots];
 }
@@ -279,7 +292,7 @@ static CGSize const kDefaultDotSize = {8, 8};
 - (void)setNumberOfPages:(NSInteger)numberOfPages
 {
     _numberOfPages = numberOfPages;
-    
+
     // Update dot position to fit new number of pages
     [self resetDotViews];
 }
@@ -288,7 +301,7 @@ static CGSize const kDefaultDotSize = {8, 8};
 - (void)setSpacingBetweenDots:(NSInteger)spacingBetweenDots
 {
     _spacingBetweenDots = spacingBetweenDots;
-    
+
     [self resetDotViews];
 }
 
@@ -300,7 +313,7 @@ static CGSize const kDefaultDotSize = {8, 8};
         _currentPage = currentPage;
         return;
     }
-    
+
     // Pre set
     [self changeActivity:NO atIndex:_currentPage];
     _currentPage = currentPage;
@@ -341,7 +354,7 @@ static CGSize const kDefaultDotSize = {8, 8};
     if (!_dots) {
         _dots = [[NSMutableArray alloc] init];
     }
-    
+
     return _dots;
 }
 
@@ -355,7 +368,7 @@ static CGSize const kDefaultDotSize = {8, 8};
         _dotSize = kDefaultDotSize;
         return _dotSize;
     }
-    
+
     return _dotSize;
 }
 

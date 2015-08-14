@@ -37,6 +37,18 @@
 
 
 /**
+ *  UIImage to represent current page dot.
+ */
+@property (nonatomic) UIImage *progressDotImage;
+
+
+/**
+ *  Dot size for dot views. Default is 8 by 8.
+ */
+@property (nonatomic) double progress;
+
+
+/**
  *  Dot size for dot views. Default is 8 by 8.
  */
 @property (nonatomic) CGSize dotSize;
