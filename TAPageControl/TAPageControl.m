@@ -156,7 +156,7 @@ static CGSize const kDefaultDotSize = {8, 8};
 
         if ([dot isKindOfClass:[UIImageView class]]) {
             double index = (double)(i+1)/(double)self.numberOfPages;
-            ((UIImageView *)dot).image = (index < self.progress) ? self.progressDotImage : self.dotImage;
+            ((UIImageView *)dot).image = floor(((double)index < self.progress)) ? self.progressDotImage : self.dotImage;
         }
         [self updateDotFrame:dot atIndex:i];
     }
@@ -255,7 +255,7 @@ static CGSize const kDefaultDotSize = {8, 8};
         if (!active) {
             if (self.progressDotImage) {
                 double indexProgress = (double)index/(double)self.numberOfPages;
-                dotView.image = (indexProgress < self.progress) ? self.progressDotImage : self.dotImage;
+                dotView.image = floor(((double)indexProgress < self.progress)) ? self.progressDotImage : self.dotImage;
             } else {
                 dotView.image = self.dotImage;
             }
@@ -368,7 +368,7 @@ static CGSize const kDefaultDotSize = {8, 8};
         _dotSize = kDefaultDotSize;
         return _dotSize;
     }
-
+    
     return _dotSize;
 }
 
